@@ -1,2 +1,2 @@
-# ASRT_JSPych_mini_consolidation
+# ASRT_JSPsych_mini_consolidation
  
