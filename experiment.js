@@ -7,7 +7,7 @@ Supervised and optimized by Szonja Weigl
 Lyon Neuroscience Research Center
 Universite Claude Bernard Lyon 1
 
-Github:https://github.com/vekteo/ASRT_JSPsych
+Github:https://github.com/vekteo/ASRT_JSPsych_mini_consolidation
 */
 
 
@@ -111,25 +111,6 @@ const feedback = {
     }
 }
 
-const selfPacedStart = {
-    type: "html-keyboard-response",
-    stimulus: "<p>Press any key to start the next block!</p>"
-};
-
-const fifteenStart = {
-    type: "html-keyboard-response",
-    stimulus: "<p>Please stay, the task will continue soon.</p>",
-    trial_duration: 15000,
-    response_ends_trial: false
-};
-
-const thirtyStart = {
-    type: "html-keyboard-response",
-    stimulus: "<p>Please stay, the task will continue soon.</p>",
-    trial_duration: 30000,
-    response_ends_trial: false
-};
-
 const images = ["static/images/hand.jpg", "static/images/circles.png", "static/images/dalmata.jpg"]; //preload memo logo (stimuli images are preloaded automatically)
 
 /*************** FUNCTIONS ***************/
@@ -161,17 +142,6 @@ function randomStimulusProc(block, trialNumber) {
 function firstStimulusProcPractice(block, trialNumber) {
     let newRandom = Math.floor(Math.random() * 4); //choose a random position between 1-4
     let randomStimulus = [{stimulus: [0, newRandom], data: {trialType: "R", block: block, firstResponse: 1,  trialNumber: trialNumber, sequence: usedSequenceString, isPractice: 1}}] //jsPsych.init modifies if necessary
-    return {
-        timeline: [firstTrialProperties],
-        timeline_variables: randomStimulus
-    }
-}
-
-/*function for first stimulus generation*/
-
-function firstStimulusProc(block, trialNumber) {
-    let newRandom = Math.floor(Math.random() * 4); //choose a random position between 1-4
-    let randomStimulus = [{stimulus: [0, newRandom], data: {trialType: "R", block: block, firstResponse: 1,  trialNumber: trialNumber, sequence: usedSequenceString, isPractice: 0}}] //jsPsych.init modifies if necessary
     return {
         timeline: [firstTrialProperties],
         timeline_variables: randomStimulus
@@ -211,6 +181,27 @@ function insertRepetition(element) {
     }
 }
 
+/*function for inserting group specific instructions to timeline*/
+
+function insertGroupBlockStart(groupName) {
+    const groupStart = {type: "html-keyboard-response"}
+    if (groupName === "selfPaced"){
+        groupStart.stimulus = "<p>Press any key to start the next block!</p>"
+    }
+    else if (groupName === "fifteen"){
+        groupStart.stimulus = "<p>Please stay, the task will continue soon.</p>"
+        groupStart.trial_duration =  15000
+        groupStart.response_ends_trial = false
+    }
+    else if (groupName === "thirty"){
+        groupStart.stimulus = "<p>Please stay, the task will continue soon.</p>"
+        groupStart.trial_duration = 30000
+        groupStart.response_ends_trial = false
+    }
+
+    timeline.push(groupStart)
+}
+
 /////////////////////////////////////////
 
 /*************** TIMELINE ***************/
@@ -232,15 +223,7 @@ for (let j = 1; j < numberOfPracticeBlocks+1; j++) {
         insertRepetition(randomRepeat(actualRandom));
     }
     timeline.push(feedback);
-    if (group == "selfPaced"){
-        timeline.push(selfPacedStart)
-    }
-    else if (group = "fifteen"){
-        timeline.push(fifteenStart)
-    }
-    else if (group = "thirty"){
-        timeline.push(thirtyStart)
-    }
+    insertGroupBlockStart(group);
 }
 timeline.push(startInstruction);
 
@@ -276,21 +259,10 @@ for (let j = 1; j < numberOfBlocks+1; j++) {
 
     /*show message according to group & do not show blockStart event after the last block*/
     
-    if (group == "selfPaced"){
-        if (j!==numberOfBlocks){
-            timeline.push(selfPacedStart)
-        }
-    else if (group = "fifteen"){
-        if (j!==numberOfBlocks){
-            timeline.push(fifteenStart)
-            }
-        }
-    else if (group = "thirty"){
-        if (j!==numberOfBlocks){
-            timeline.push(thirtyStart)
-            }
-        }
+    if (j!==numberOfBlocks){
+        insertGroupBlockStart(group)
     }
+
 }
 
 timeline.push(end)
