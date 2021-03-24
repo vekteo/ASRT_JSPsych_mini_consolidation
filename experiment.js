@@ -214,11 +214,11 @@ jsPsych.data.addProperties({subject: subject_id}); //add subject ID to the data
 /* practice blocks*/
 
 for (let j = 1; j < numberOfPracticeBlocks+1; j++) {
-    actualRandom = firstStimulusProcPractice(j,1) //longer delay before first element
+    actualRandom = randomStimulusProc(j,1,1,1) //longer delay before first element
     timeline.push(actualRandom);
     insertRepetition(randomRepeat(actualRandom));
     for (let l = 2; l < (numberOfBlockElements+1); l++) { //now 85 practice element in one block
-        actualRandom = randomStimulusProcPractice(j,l);
+        actualRandom = randomStimulusProc(j,l,0,1);
         timeline.push(actualRandom);
         insertRepetition(randomRepeat(actualRandom));
     }
@@ -230,6 +230,12 @@ timeline.push(startInstruction);
 /* sequence protocol */
 
 for (let j = 1; j < numberOfBlocks+1; j++) {
+
+    /* longer delay before first element */
+
+    actualRandom = randomStimulusProc(j, 1, 1, 0) 
+    timeline.push(actualRandom);
+    insertRepetition(randomRepeat(actualRandom));
 
     /*create all remaining block elements*/
    
@@ -247,6 +253,12 @@ for (let j = 1; j < numberOfBlocks+1; j++) {
                 data: dataForPattern
             }]);
             insertRepetition(patternIncorrectTrialProc)
+
+            if (dataForPattern.trial_number !== 80) {
+                actualRandom = randomStimulusProc(j,n+n+3+(k*8), 0, 0)
+                timeline.push(actualRandom);
+                insertRepetition(randomRepeat(actualRandom));
+            }
         }
     }
 
@@ -259,7 +271,6 @@ for (let j = 1; j < numberOfBlocks+1; j++) {
     if (j!==numberOfBlocks){
         insertGroupBlockStart(group)
     }
-
 }
 
 timeline.push(end)
