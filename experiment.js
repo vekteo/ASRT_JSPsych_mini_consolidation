@@ -177,19 +177,28 @@ function insertRepetition(element) {
 function insertGroupBlockStart(groupName) {
     const groupStart = {type: "html-keyboard-response"}
     if (groupName === "selfPaced"){
-        groupStart.stimulus = "<p>Press any key to start the next block!</p>"
+        groupStart.stimulus = `
+        <p>${language.task.place}</p>
+        <img src="static/images/keyboard.bmp" height='10%'>
+        <h2>${language.miniConsolidation.selfPaced}</h2>
+        `
     }
     else if (groupName === "fifteen"){
-        groupStart.stimulus = "<p>Please stay, the task will continue soon.</p>"
+        groupStart.stimulus = `
+        <p>${language.task.place}</p>
+        <img src="static/images/keyboard.bmp" height='10%'>
+        <h2>${language.miniConsolidation.pleaseStay}</h2>`
         groupStart.trial_duration =  15000
         groupStart.response_ends_trial = false
     }
     else if (groupName === "thirty"){
-        groupStart.stimulus = "<p>Please stay, the task will continue soon.</p>"
+        groupStart.stimulus = `
+        <p>${language.task.place}</p>
+        <img src="static/images/keyboard.bmp" height='10%'>
+        <h2>${language.miniConsolidation.pleaseStay}</h2>`
         groupStart.trial_duration = 30000
         groupStart.response_ends_trial = false
     }
-
     timeline.push(groupStart)
 }
 
