@@ -223,7 +223,10 @@ for (let j = 1; j < numberOfPracticeBlocks+1; j++) {
         insertRepetition(randomRepeat(actualRandom));
     }
     timeline.push(feedback);
-    insertGroupBlockStart(group);
+    
+    if (j!==numberOfPracticeBlocks){
+        insertGroupBlockStart(group);
+    }
 }
 timeline.push(startInstruction);
 
