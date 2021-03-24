@@ -30,7 +30,9 @@ const instruction = {
         <div class='float: center;'><img src='static/images/keyboard.bmp' height='10%' alt='Hand'/></div>
         <p>${language.instruction2.ifClear}</p>`
     ],
-    show_clickable_nav: true
+    show_clickable_nav: true,
+    button_label_next: `${language.button.next}`,
+    button_label_previous: `${language.button.previous}`
 }
 
 const startPracticeInstruction = { //define instruction at the start of the practice
