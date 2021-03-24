@@ -17,38 +17,43 @@ let timeline = []; //create timeline
 const instruction = {
     type: "instructions",
     pages: [
-        "<h1>Welcome to the experiment!</h1>" +
-        "</p> Click on <strong>Next</strong> to continue.</p>",
-        "<p>In this experiment, you will see four circles on the screen. From left to right, the <strong>'S'</strong>, <strong>'F'</strong>, <strong>'J'</strong> and <strong>'L'</strong> keys correspond to the four circles.</p>" +
-        "<div class='float: center;'><img src='static/images/circles.png' height='156px' width='346px' alt='Circles'/></div>" +
-        "<p>An <b>image of a dog</b> will appear in one of the circles.</p>" +
-        "<div class='float: center;'><img src='static/images/dalmata.jpg' height='100px' width='100px' alt='Dalmata'/></div>" +
-        "<p>Your task will be to press the key corresponding to the position of the dog <strong>as quickly and as accurately as you can</strong>.",
-        "<p>Your will need to press the <strong>'S'</strong> key with the middle finger of your left hand," +
-        "<p>the <strong>'F'</strong> key with the index finger of your left hand</strong>" +
-        "<p>the <strong>'J'</strong> key with the index finger of your right hand," +
-        "<p>the <strong>'L'</strong> key with the middle finger of your right hand</strong>" +
-        "<div class='float: center;'><img src='static/images/hand.jpg' height='300px' width='500px' alt='Hand'/></div>" +
-        "<p>If the instructions are clear, click on <strong>Next</strong>; if not, you can go back and check the instructions again by clinking on <strong>Previous</strong>.</p>"
+        `<h1>${language.welcomePage.welcome}</h1></p>${language.welcomePage.clickNext}</p>`,
+        `<p>${language.instruction.fourCircles}</p>
+        <p>${language.instruction.dog}</p>
+        <p>${language.instruction.yourTask}
+        <div class='float: center;'>${language.instruction.img}</div>
+        <p>${language.instruction.restBetweenBlocks}`,
+        `<p>${language.instruction2.firstButton}</p>
+        <p>${language.instruction2.secondButton}</p>
+        <p>${language.instruction2.thirdButton}</p>
+        <p>${language.instruction2.fourthButton}</p>
+        <div class='float: center;'><img src='static/images/keyboard.bmp' height='10%' alt='Hand'/></div>
+        <p>${language.instruction2.ifClear}</p>`
     ],
-    show_clickable_nav: true
+    show_clickable_nav: true,
+    button_label_next: `${language.button.next}`,
+    button_label_previous: `${language.button.previous}`
 }
 
 const startPracticeInstruction = { //define instruction at the start of the practice
     type: "html-keyboard-response",
-    stimulus: "<p>If you are ready, press <strong>ANY</strong> key to start a practice!</p>"
+    stimulus: 
+        `<h2>${language.practice.practiceSoon}</h2>
+        <p>${language.task.place}</p>
+        <img src="static/images/keyboard.bmp" height='10%'>
+        <p><strong>${language.practice.startPractice}</strong></p>`
 };
 
 const startInstruction = { //define instruction at the start of the experiment
     type: "html-keyboard-response",
-    stimulus: "<p>The real task begins now.</p>" +
-        "<p>If you are ready, press <strong>ANY</strong> key to start the task!</p>"
+    stimulus: 
+        `<h2>${language.task.realTask}</h2>
+        <p>${language.task.startTask}</p>`
 };
 
 const end = { //define end of experiment message
     type: "html-keyboard-response",
-    stimulus: "<p>End of the experiment.</p>" +
-        "<p>Thank you for participating!</p>"
+    stimulus: `<p>${language.end.endTask}</p><p>${language.end.thankYou}</p>`
 };
 
 const subject_id = jsPsych.randomization.randomID(15); //generate a random subject ID
@@ -57,14 +62,6 @@ const responseKeys = [['s', 'f', 'j', 'l']]; //response keys settings
 const usedSequenceString = usedSequence.map(v=> v+1).join().replace(/,/g, ""); //the sequence positions from 1-4 converted to string
 let actualTriplet;
 let actualRandom;
-const numberOfPracticeBlocks = 2;
-const numberOfBlocks = 25;
-const numberOfBlockElements = 80;
-const numberOfSequenceRepetitions = 10;
-const patternTrialImage = "url(static/images/dalmata.jpg)";
-const randomTrialImage = "url(static/images/dalmata.jpg)";
-const rsi = 120;
-const initialDelay = 1000;
 let group = "selfPaced" //selfPaced, fifteen or thirty
 
 /* set up trial properties */
@@ -93,21 +90,19 @@ const feedback = {
     stimulus: function () {
         let trials = jsPsych.data.get();
         let blockNum = jsPsych.data.get().last(1).values()[0].block; //relies only on the performance in the last block
-        let correct_trials = trials.filter({correct: true, block: blockNum, firstResponse: 1}); //only: correct response, last block, first button press for a given trial
-        let numberOfTrials = trials.filter({block: blockNum, firstResponse: 1}).count(); //number of DIFFERENT trials
+        let correct_trials = trials.filter({correct: true, block: blockNum, first_response: 1}); //only: correct response, last block, first button press for a given trial
+        let numberOfTrials = trials.filter({block: blockNum, first_response: 1}).count(); //number of DIFFERENT trials
         let accuracy = Math.round(correct_trials.count() / numberOfTrials * 100); //mean accuracy in the given block
         let rt = Math.round(correct_trials.select('rt').mean()); //mean rt of the given block
         let message;
         if (accuracy < 90) { //if mean accuracy is less than 90, show this message
-            message = "<p class='message'><strong>Try to be more accurate!</strong></p>"
+            message = `<p class='message'><strong>${language.feedback.moreAccurate}</strong></p>`
         } else if (accuracy >= 93 && rt > 200) { //if mean rt is higher than 200 ms, and accuracy than 92%, show this message
-            message = "<p class='message'><strong>Try to be faster!</strong></p>"
+            message = `<p class='message'><strong>${language.feedback.faster}</strong></p>`
         } else { //if mean accuracy is over 92% and mean rt is smaller than 500 ms, show this message
-            message = "<p class='message'><strong>Please continue!</strong></p>"
+            message = `<p class='message'><strong>${language.feedback.continue}</strong></p>`
         }
-        return "<h2>End of block " + blockNum + "</h2>" +
-            "<p>Your accuracy: " + accuracy + "%</p>" +
-            "<p>Your average response time: " + rt + " ms</p>" + message;
+        return `<h2>${language.feedback.endBlock}${blockNum}</h2><br><p>${language.feedback.yourAccuracy}${accuracy}%</p><p>${language.feedback.yourRt}${rt} ms</p><br>${message}`
     }
 }
 
@@ -128,34 +123,30 @@ function IncorrectTrialProcs(timeline, timelineVariables) {
 
 /*function for random stimulus generation*/
 
-function randomStimulusProc(block, trialNumber) {
+function randomStimulusProc(block, trialNumber, isFirstTrial, isPractice) {
+    let stimuli;
+    let trialProp;
     let newRandom = Math.floor(Math.random() * 4); //choose a random position between 1-4
-    let randomStimulus = [{stimulus: [0, newRandom], data: {trialType: "R", block: block, firstResponse: 1,  trialNumber: trialNumber, sequence: usedSequenceString, isPractice: 0}}] //jsPsych.init modifies if necessary
-    return {
-        timeline: [randomTrialProperties],
-        timeline_variables: randomStimulus
+    stimuli = [{stimulus: [0, newRandom], data: {p_or_r: "R", block: block, first_response: 1,  trial_number: trialNumber, sequence: usedSequenceString}}] //jsPsych.init modifies if necessary
+    if (isFirstTrial == 1 && isPractice == 1) {
+        stimuli[0].data.is_practice = 1;
+        trialProp = firstTrialProperties;
     }
-}
-
-/*function for first stimulus generation in the practice session*/
-
-function firstStimulusProcPractice(block, trialNumber) {
-    let newRandom = Math.floor(Math.random() * 4); //choose a random position between 1-4
-    let randomStimulus = [{stimulus: [0, newRandom], data: {trialType: "R", block: block, firstResponse: 1,  trialNumber: trialNumber, sequence: usedSequenceString, isPractice: 1}}] //jsPsych.init modifies if necessary
-    return {
-        timeline: [firstTrialProperties],
-        timeline_variables: randomStimulus
+    else if (isPractice == 1) {
+        stimuli[0].data.is_practice = 1;
+        trialProp = randomTrialProperties
+    } 
+    else if (isFirstTrial == 1){
+        stimuli[0].data.is_practice = 0;
+        trialProp = firstTrialProperties
     }
-}
-
-/*function for random stimulus generation in the practice session*/
-
-function randomStimulusProcPractice(block, trialNumber) {
-    let newRandom = Math.floor(Math.random() * 4); //choose a random position between 1-4
-    let randomStimulus = [{stimulus: [0, newRandom], data: {trialType: "R", block: block, firstResponse: 1,  trialNumber: trialNumber, sequence: usedSequenceString, isPractice: 1}}] //jsPsych.init modifies if necessary
+    else {
+        stimuli[0].data.is_practice = 0;
+        trialProp = randomTrialProperties
+    }
     return {
-        timeline: [randomTrialProperties],
-        timeline_variables: randomStimulus
+        timeline: [trialProp],
+        timeline_variables: stimuli
     }
 }
 
@@ -186,19 +177,28 @@ function insertRepetition(element) {
 function insertGroupBlockStart(groupName) {
     const groupStart = {type: "html-keyboard-response"}
     if (groupName === "selfPaced"){
-        groupStart.stimulus = "<p>Press any key to start the next block!</p>"
+        groupStart.stimulus = `
+        <p>${language.task.place}</p>
+        <img src="static/images/keyboard.bmp" height='10%'>
+        <h2>${language.miniConsolidation.selfPaced}</h2>
+        `
     }
     else if (groupName === "fifteen"){
-        groupStart.stimulus = "<p>Please stay, the task will continue soon.</p>"
+        groupStart.stimulus = `
+        <p>${language.task.place}</p>
+        <img src="static/images/keyboard.bmp" height='10%'>
+        <h2>${language.miniConsolidation.pleaseStay}</h2>`
         groupStart.trial_duration =  15000
         groupStart.response_ends_trial = false
     }
     else if (groupName === "thirty"){
-        groupStart.stimulus = "<p>Please stay, the task will continue soon.</p>"
+        groupStart.stimulus = `
+        <p>${language.task.place}</p>
+        <img src="static/images/keyboard.bmp" height='10%'>
+        <h2>${language.miniConsolidation.pleaseStay}</h2>`
         groupStart.trial_duration = 30000
         groupStart.response_ends_trial = false
     }
-
     timeline.push(groupStart)
 }
 
@@ -214,16 +214,19 @@ jsPsych.data.addProperties({subject: subject_id}); //add subject ID to the data
 /* practice blocks*/
 
 for (let j = 1; j < numberOfPracticeBlocks+1; j++) {
-    actualRandom = firstStimulusProcPractice(j,1) //longer delay before first element
+    actualRandom = randomStimulusProc(j,1,1,1) //longer delay before first element
     timeline.push(actualRandom);
     insertRepetition(randomRepeat(actualRandom));
     for (let l = 2; l < (numberOfBlockElements+1); l++) { //now 85 practice element in one block
-        actualRandom = randomStimulusProcPractice(j,l);
+        actualRandom = randomStimulusProc(j,l,0,1);
         timeline.push(actualRandom);
         insertRepetition(randomRepeat(actualRandom));
     }
     timeline.push(feedback);
-    insertGroupBlockStart(group);
+    
+    if (j!==numberOfPracticeBlocks){
+        insertGroupBlockStart(group);
+    }
 }
 timeline.push(startInstruction);
 
@@ -231,14 +234,17 @@ timeline.push(startInstruction);
 
 for (let j = 1; j < numberOfBlocks+1; j++) {
 
+    /* longer delay before first element */
+
+    actualRandom = randomStimulusProc(j, 1, 1, 0) 
+    timeline.push(actualRandom);
+    insertRepetition(randomRepeat(actualRandom));
+
     /*create all remaining block elements*/
    
     for (let k = 0; k < numberOfSequenceRepetitions; k++) { //repeat 8-elements sequence 10 times
         for (let n = 0; n < 4; n++) { //repeat pattern + repeat random
-            let dataForPattern = {trialType: "P", block: j, firstResponse: 1, trialNumber: n+n+2+(k*8), sequence: usedSequenceString, isPractice: 0} //output parameters for pattern stimuli
-            actualRandom = randomStimulusProc(j,n+n+1+(k*8),0)
-            timeline.push(actualRandom);
-            insertRepetition(randomRepeat(actualRandom));
+            let dataForPattern = {p_or_r: "P", block: j, first_response: 1, trial_number: n+n+2+(k*8), sequence: usedSequenceString, is_practice: 0} //output parameters for pattern stimuli
             let patternTrialProc = {
                 timeline: [patternTrialProperties],
                 timeline_variables: [{stimulus: [0, usedSequence[n]], data: dataForPattern}]
@@ -250,6 +256,12 @@ for (let j = 1; j < numberOfBlocks+1; j++) {
                 data: dataForPattern
             }]);
             insertRepetition(patternIncorrectTrialProc)
+
+            if (dataForPattern.trial_number !== 80) {
+                actualRandom = randomStimulusProc(j,n+n+3+(k*8), 0, 0)
+                timeline.push(actualRandom);
+                insertRepetition(randomRepeat(actualRandom));
+            }
         }
     }
 
@@ -262,7 +274,6 @@ for (let j = 1; j < numberOfBlocks+1; j++) {
     if (j!==numberOfBlocks){
         insertGroupBlockStart(group)
     }
-
 }
 
 timeline.push(end)
@@ -277,22 +288,24 @@ jsPsych.init({
 
         /*output properties*/
 
-        let lastTrialMinus1 = jsPsych.data.get().last(2).values()[0] //if the same trial is presented for the second time (previous response is incorrect) - write 0 in firstResponse
+        let lastTrialMinus1 = jsPsych.data.get().last(2).values()[0] //if the same trial is presented for the second time (previous response is incorrect) - write 0 in first_response
         let lastTrial = jsPsych.data.get().last(1).values()[0]
         if (typeof (lastTrial.target) != "undefined") {
             if (lastTrialMinus1.correct === false) {
                 if (lastTrial.target === lastTrialMinus1.target) {
-                    lastTrial.firstResponse = 0
+                    lastTrial.first_response = 0
                 }
             }
-        lastTrial.correctPos = parseInt(lastTrial.target[3])+1 //write the correct position in a separate column (1-4, from left to right)
-        lastTrial.correctRespButton = responseKeys[0][parseInt(lastTrial.target[3])] //write the name of the correct response button in a separate column
-        lastTrial.respButton = String.fromCharCode(lastTrial.key_press).toLowerCase() //write the name of the response button in a separate column
-        if (lastTrial.trialNumber == lastTrialMinus1.trialNumber){ //write cumulative RT in a separate column (the RT from stimulus appeared to CORRECT response)
-            lastTrial.cumulativeRT = lastTrial.rt + lastTrialMinus1.cumulativeRT
+
+        lastTrial.correct_pos = parseInt(lastTrial.target[3])+1 //write the correct position in a separate column (1-4, from left to right)
+        lastTrial.correct_resp_button = responseKeys[0][parseInt(lastTrial.target[3])] //write the name of the correct response button in a separate column
+        lastTrial.resp_button = String.fromCharCode(lastTrial.key_press).toLowerCase() //write the name of the response button in a separate column
+        
+        if (lastTrial.trial_number == lastTrialMinus1.trial_number){ //write cumulative RT in a separate column (the RT from stimulus appeared to CORRECT response)
+            lastTrial.cumulative_RT = lastTrial.rt + lastTrialMinus1.cumulative_RT
         }
         else {
-            lastTrial.cumulativeRT = lastTrial.rt
+            lastTrial.cumulative_RT = lastTrial.rt
         }
 
     /*calculate triplet types*/
@@ -309,34 +322,34 @@ jsPsych.init({
 
         /* define the elements of the triplet*/
 
-        if(lastTrial.trialNumber == 1) {
-            actualTriplet = ["","",lastTrial.correctPos]
+        if(lastTrial.trial_number == 1) {
+            actualTriplet = ["","",lastTrial.correct_pos]
         }
-        else if (lastTrial.trialNumber == 2) {
-            actualTriplet = ["",jsPsych.data.get().last(lengthOfTrials-secondTripletElementIndex).values()[0].correctPos, lastTrial.correctPos]
+        else if (lastTrial.trial_number == 2) {
+            actualTriplet = ["",jsPsych.data.get().last(lengthOfTrials-secondTripletElementIndex).values()[0].correct_pos, lastTrial.correct_pos]
         }
         else {
-            actualTriplet = [jsPsych.data.get().last(lengthOfTrials-thirdTripletElementIndex).values()[0].correctPos,jsPsych.data.get().last(lengthOfTrials-secondTripletElementIndex).values()[0].correctPos, lastTrial.correctPos];
+            actualTriplet = [jsPsych.data.get().last(lengthOfTrials-thirdTripletElementIndex).values()[0].correct_pos,jsPsych.data.get().last(lengthOfTrials-secondTripletElementIndex).values()[0].correct_pos, lastTrial.correct_pos];
         }
 
-        lastTrial.actualTriplet = actualTriplet.join().replace(/,/g, ""); //write the actual triplet to a separate column as a string
+        lastTrial.actual_triplet = actualTriplet.join().replace(/,/g, ""); //write the actual triplet to a separate column as a string
 
         /*define actual triplet as x, high, low, repetition or trill*/
 
-        if (lastTrial.isPractice == 1 || lastTrial.trialNumber <= 2) { //if practice block or first 2 element
-            lastTrial.tripletType = "X" //trials to exclude
+        if (lastTrial.is_practice == 1 || lastTrial.trial_number <= 2) { //if practice block or first 2 element
+            lastTrial.triplet_type = "X" //trials to exclude
         }
-        else if ((usedSequenceString.includes(lastTrial.actualTriplet[0] + lastTrial.actualTriplet[2])) || (usedSequenceString[3] + usedSequenceString[0] === lastTrial.actualTriplet[0] + lastTrial.actualTriplet[2])){ //if the 1st and the 3rd element of the triplet is part of the usedSequenceString
-            lastTrial.tripletType = "H" //high-probability triplet
+        else if ((usedSequenceString.includes(lastTrial.actual_triplet[0] + lastTrial.actual_triplet[2])) || (usedSequenceString[3] + usedSequenceString[0] === lastTrial.actual_triplet[0] + lastTrial.actual_triplet[2])){ //if the 1st and the 3rd element of the triplet is part of the usedSequenceString
+            lastTrial.triplet_type = "H" //high-probability triplet
         }
         else if (actualTriplet[0] == actualTriplet[1] && actualTriplet[1] == actualTriplet[2]) { //if all 3 elements are identical
-            lastTrial.tripletType = "R" //repetition
+            lastTrial.triplet_type = "R" //repetition
         }
         else if (actualTriplet[0] == actualTriplet[2] && actualTriplet[0] != actualTriplet[1]) { //if 1st and 3rd elements are identical
-            lastTrial.tripletType = "T" //trill
+            lastTrial.triplet_type = "T" //trill
         }
         else {
-            lastTrial.tripletType = "L" //low-probability triplet
+            lastTrial.triplet_type = "L" //low-probability triplet
         }
 
     }
@@ -345,11 +358,13 @@ jsPsych.init({
         let interactionData = jsPsych.data.getInteractionData()
         const interactionDataOfLastTrial = interactionData.filter({'trial': lastTrial.trial_index}).values();
         if (interactionDataOfLastTrial) {
-            lastTrial.browserEvents = JSON.stringify(interactionDataOfLastTrial)
+            lastTrial.browser_events = JSON.stringify(interactionDataOfLastTrial)
          }
      },
- 
+     on_close: function () {
+        jsPsych.data.get().localSave("csv", "ASRT_mini_consolidation_quitted_output.csv"); //saves experiment output to .csv file
+    },
      on_finish: function () {
-        jsPsych.data.get().localSave("csv", "output.csv"); //saves experiment output to .csv file
+        jsPsych.data.get().localSave("csv", "ASRT_mini_consolidation_output.csv"); //saves experiment output to .csv file
     }
 })
